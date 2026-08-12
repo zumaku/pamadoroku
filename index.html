@@ -344,9 +344,11 @@
         }
 
         function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            var minutes = Math.floor(timeLeft / 60);
+            var seconds = timeLeft % 60;
+            var mStr = minutes < 10 ? '0' + minutes : minutes;
+            var sStr = seconds < 10 ? '0' + seconds : seconds;
+            var timeString = mStr + ':' + sStr;
             
             timerDark.textContent = timeString;
             timerYellow.textContent = timeString;
