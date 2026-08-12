@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pamadoroku</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Outfit:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -75,9 +75,10 @@
         }
 
         .message {
-            margin-top: 25vh;
+            margin-top: 20vh;
             text-align: center;
             opacity: 0;
+            padding: 0 1.5rem;
             transform: translateY(20px) scale(0.95);
             transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
                         transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -97,7 +98,7 @@
 
         .sub-text {
             font-family: 'Inter', sans-serif;
-            font-size: 1.2vw;
+            font-size: 1.5vw;
             font-weight: 400;
             margin-top: 1rem;
             opacity: 0.6;
@@ -117,21 +118,9 @@
             font-variant-numeric: tabular-nums;
         }
 
-        @media (max-width: 768px) {
-            .timer {
-                font-size: 28vw;
-                bottom: 2rem;
-                left: 2rem;
-            }
-            .main-text { font-size: 9vw; }
-            .sub-text { font-size: 3.5vw; }
-        }
-
-        /* Tombol Pengaturan */
-        .settings-btn {
+        /* Tombol Navigasi */
+        .icon-btn {
             position: absolute;
-            top: 2.5rem;
-            right: 2.5rem;
             z-index: 10;
             color: #fff;
             cursor: pointer;
@@ -139,19 +128,50 @@
             transition: opacity 0.4s ease, transform 0.2s;
             mix-blend-mode: difference;
         }
+
+        .icon-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .icon-btn svg {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .settings-btn {
+            top: 2.5rem;
+            right: 2.5rem;
+        }
         
         .settings-btn:hover {
             transform: rotate(90deg);
         }
 
-        .settings-btn.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .fullscreen-btn {
+            top: 2.5rem;
+            left: 2.5rem;
         }
 
-        .settings-btn svg {
-            width: 2.5rem;
-            height: 2.5rem;
+        .fullscreen-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsivitas untuk HP seperti J2 Prime */
+        @media (max-width: 768px) {
+            .timer {
+                font-size: 26vw;
+                bottom: 2rem;
+                left: 2rem;
+            }
+            .main-text { font-size: 10vw; }
+            .sub-text { font-size: 4vw; margin-top: 0.5rem; }
+            
+            .settings-btn { top: 1.5rem; right: 1.5rem; }
+            .fullscreen-btn { top: 1.5rem; left: 1.5rem; }
+            .icon-btn svg { width: 2rem; height: 2rem; }
+            
+            .message { margin-top: 18vh; }
         }
 
         /* Modal Pengaturan */
@@ -177,8 +197,8 @@
         .modal-content {
             background: #111;
             color: #fff;
-            padding: 2.5rem;
-            border-radius: 24px;
+            padding: 2rem;
+            border-radius: 20px;
             width: 85%;
             max-width: 400px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.8);
@@ -193,15 +213,15 @@
 
         .modal-content h2 { 
             margin-top: 0; 
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-weight: 300; 
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             letter-spacing: -0.02em;
         }
         
         .modal-content label { 
             display: block; 
-            margin-top: 1.5rem; 
+            margin-top: 1rem; 
             opacity: 0.7; 
             font-size: 0.9rem; 
             letter-spacing: 0.02em;
@@ -228,7 +248,7 @@
         }
 
         .modal-content button {
-            margin-top: 2.5rem; 
+            margin-top: 2rem; 
             width: 100%; 
             padding: 1.2rem;
             background: var(--bg-yellow); 
@@ -245,9 +265,6 @@
         .modal-content button:active { 
             transform: scale(0.97); 
         }
-        .modal-content button:hover {
-            opacity: 0.9;
-        }
     </style>
 </head>
 <body>
@@ -255,8 +272,15 @@
     <!-- Area layar yang bisa diklik untuk timer -->
     <div class="timer-area" id="timer-area"></div>
 
+    <!-- Tombol Layar Penuh -->
+    <div class="icon-btn fullscreen-btn" id="fullscreen-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+        </svg>
+    </div>
+
     <!-- Tombol Pengaturan -->
-    <div class="settings-btn" id="settings-btn">
+    <div class="icon-btn settings-btn" id="settings-btn">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -300,33 +324,34 @@
     </div>
 
     <script>
-        let WORK_TIME = 25 * 60; // 25 menit default
-        let REST_TIME = 5 * 60;  // 5 menit default
+        var WORK_TIME = 25 * 60; // 25 menit default
+        var REST_TIME = 5 * 60;  // 5 menit default
         
-        let timeLeft = WORK_TIME;
-        let currentTotalTime = WORK_TIME;
-        let timerInterval = null;
-        let isRunning = false;
-        let isResting = false;
+        var timeLeft = WORK_TIME;
+        var currentTotalTime = WORK_TIME;
+        var timerInterval = null;
+        var isRunning = false;
+        var isResting = false;
 
-        const timerArea = document.getElementById('timer-area');
-        const timerDark = document.getElementById('timer-dark');
-        const timerYellow = document.getElementById('timer-yellow');
-        const progressLayer = document.getElementById('progress-layer');
+        var timerArea = document.getElementById('timer-area');
+        var timerDark = document.getElementById('timer-dark');
+        var timerYellow = document.getElementById('timer-yellow');
+        var progressLayer = document.getElementById('progress-layer');
 
-        const msgDark = document.getElementById('message-dark');
-        const msgYellow = document.getElementById('message-yellow');
+        var msgDark = document.getElementById('message-dark');
+        var msgYellow = document.getElementById('message-yellow');
 
-        const mainDark = document.getElementById('main-dark');
-        const mainYellow = document.getElementById('main-yellow');
-        const subDark = document.getElementById('sub-dark');
-        const subYellow = document.getElementById('sub-yellow');
+        var mainDark = document.getElementById('main-dark');
+        var mainYellow = document.getElementById('main-yellow');
+        var subDark = document.getElementById('sub-dark');
+        var subYellow = document.getElementById('sub-yellow');
 
-        const settingsBtn = document.getElementById('settings-btn');
-        const modalOverlay = document.getElementById('modal-overlay');
-        const workInput = document.getElementById('work-input');
-        const restInput = document.getElementById('rest-input');
-        const saveBtn = document.getElementById('save-btn');
+        var settingsBtn = document.getElementById('settings-btn');
+        var fullscreenBtn = document.getElementById('fullscreen-btn');
+        var modalOverlay = document.getElementById('modal-overlay');
+        var workInput = document.getElementById('work-input');
+        var restInput = document.getElementById('rest-input');
+        var saveBtn = document.getElementById('save-btn');
 
         function setMessages(main, sub, visible) {
             mainDark.textContent = main;
@@ -362,8 +387,33 @@
                     progressLayer.style.width = '0%';
                 } else {
                     progressLayer.style.transition = 'width 1s linear';
-                    const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
-                    progressLayer.style.width = `${progress}%`;
+                    var progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
+                    progressLayer.style.width = progress + '%';
+                }
+            }
+        }
+
+        function toggleFullScreen() {
+            var doc = document.documentElement;
+            if (!document.fullscreenElement && !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (doc.requestFullscreen) {
+                    doc.requestFullscreen();
+                } else if (doc.msRequestFullscreen) {
+                    doc.msRequestFullscreen();
+                } else if (doc.mozRequestFullScreen) {
+                    doc.mozRequestFullScreen();
+                } else if (doc.webkitRequestFullscreen) {
+                    doc.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
                 }
             }
         }
@@ -371,7 +421,8 @@
         function startTimer() {
             if (isRunning) return;
             isRunning = true;
-            settingsBtn.classList.add('hidden'); // Sembunyikan ikon saat berjalan
+            settingsBtn.classList.add('hidden'); // Sembunyikan ikon pengaturan
+            fullscreenBtn.classList.add('hidden'); // Sembunyikan ikon fullscreen
             
             if (isResting) {
                 setMessages('Istirahat', '', true);
@@ -379,11 +430,9 @@
                 setMessages('', '', false);
             }
             
-            timerInterval = setInterval(() => {
+            timerInterval = setInterval(function() {
                 if (timeLeft <= 0) {
-                    // Waktu habis, saatnya berpindah ke mode selanjutnya secara otomatis
                     if (!isResting) {
-                        // Selesai kerja -> Mulai istirahat
                         isResting = true;
                         currentTotalTime = REST_TIME;
                         timeLeft = REST_TIME;
@@ -393,11 +442,10 @@
                         progressLayer.style.width = '0%';
                         void progressLayer.offsetWidth; // force reflow
                     } else {
-                        // Selesai istirahat -> Mulai kerja
                         isResting = false;
                         currentTotalTime = WORK_TIME;
                         timeLeft = WORK_TIME;
-                        setMessages('', '', false); // Bersihkan pesan untuk masuk mode fokus
+                        setMessages('', '', false);
                         
                         progressLayer.style.transition = 'none';
                         progressLayer.style.width = '0%';
@@ -418,24 +466,26 @@
             currentTotalTime = WORK_TIME;
             timeLeft = WORK_TIME;
             settingsBtn.classList.remove('hidden');
+            fullscreenBtn.classList.remove('hidden');
             setMessages('Pamadoro', 'Ketuk di mana saja untuk memulai', true);
             updateDisplay();
         }
 
         // Tap di area timer
-        timerArea.addEventListener('click', () => {
+        timerArea.addEventListener('click', function(e) {
             if (!isRunning) {
                 startTimer();
             } else {
                 clearInterval(timerInterval);
                 isRunning = false;
                 settingsBtn.classList.remove('hidden'); 
-                setMessages(isResting ? 'Istirahat Dijeda' : 'Jeda', 'Ketuk di mana saja untuk melanjutkan', true);
+                fullscreenBtn.classList.remove('hidden'); 
+                setMessages(isResting ? 'Istirahat Dijeda' : 'Jeda', 'Ketuk untuk melanjutkan', true);
             }
         });
 
         // Buka pengaturan
-        settingsBtn.addEventListener('click', () => {
+        settingsBtn.addEventListener('click', function(e) {
             if (!isRunning) {
                 workInput.value = Math.floor(WORK_TIME / 60);
                 restInput.value = Math.floor(REST_TIME / 60);
@@ -443,17 +493,22 @@
             }
         });
 
+        // Toggle Fullscreen
+        fullscreenBtn.addEventListener('click', function(e) {
+            toggleFullScreen();
+        });
+
         // Tutup saat klik luar modal
-        modalOverlay.addEventListener('click', (e) => {
+        modalOverlay.addEventListener('click', function(e) {
             if (e.target === modalOverlay) {
                 modalOverlay.classList.remove('open');
             }
         });
 
         // Simpan & terapkan
-        saveBtn.addEventListener('click', () => {
-            const newWork = parseInt(workInput.value) || 25;
-            const newRest = parseInt(restInput.value) || 5;
+        saveBtn.addEventListener('click', function(e) {
+            var newWork = parseInt(workInput.value) || 25;
+            var newRest = parseInt(restInput.value) || 5;
             
             WORK_TIME = Math.max(1, newWork) * 60;
             REST_TIME = Math.max(1, newRest) * 60;
