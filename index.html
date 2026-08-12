@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pamadoroku</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --text-light: #ffffff;
+            --bg-yellow: #ffcc00;
+            --text-dark: #000000;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Area yang dapat diklik untuk timer */
+        .timer-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        .dark-layer {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            z-index: 1;
+        }
+
+        .yellow-layer {
+            background-color: var(--bg-yellow);
+            color: var(--text-dark);
+            z-index: 2;
+            width: 0%;
+            overflow: hidden;
+            transition: width 1s linear;
+            will-change: width;
+        }
+
+        .layer-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .message {
+            margin-top: 25vh;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .message.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .main-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 5vw;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+        }
+
+        .sub-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.2vw;
+            font-weight: 400;
+            margin-top: 1rem;
+            opacity: 0.6;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .timer {
+            font-family: 'Outfit', sans-serif;
+            position: absolute;
+            bottom: 3rem;
+            left: 4rem;
+            font-size: 18vw;
+            font-weight: 700;
+            line-height: 0.75;
+            letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        @media (max-width: 768px) {
+            .timer {
+                font-size: 28vw;
+                bottom: 2rem;
+                left: 2rem;
+            }
+            .main-text { font-size: 9vw; }
+            .sub-text { font-size: 3.5vw; }
+        }
+
+        /* Tombol Pengaturan */
+        .settings-btn {
+            position: absolute;
+            top: 2.5rem;
+            right: 2.5rem;
+            z-index: 10;
+            color: #fff;
+            cursor: pointer;
+            opacity: 1;
+            transition: opacity 0.4s ease, transform 0.2s;
+            mix-blend-mode: difference;
+        }
+        
+        .settings-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .settings-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .settings-btn svg {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        /* Modal Pengaturan */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: #111;
+            color: #fff;
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 85%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            border: 1px solid #222;
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h2 { 
+            margin-top: 0; 
+            margin-bottom: 2rem;
+            font-weight: 300; 
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .modal-content label { 
+            display: block; 
+            margin-top: 1.5rem; 
+            opacity: 0.7; 
+            font-size: 0.9rem; 
+            letter-spacing: 0.02em;
+        }
+
+        .modal-content input {
+            display: block; 
+            width: 100%; 
+            margin-top: 0.5rem;
+            background: #1a1a1a; 
+            border: 1px solid #333; 
+            color: #fff;
+            padding: 1rem; 
+            border-radius: 12px; 
+            font-size: 1.1rem;
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .modal-content input:focus {
+            border-color: var(--bg-yellow);
+        }
+
+        .modal-content button {
+            margin-top: 2.5rem; 
+            width: 100%; 
+            padding: 1.2rem;
+            background: var(--bg-yellow); 
+            color: #000; 
+            border: none;
+            border-radius: 12px; 
+            font-weight: 700; 
+            font-size: 1.1rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer; 
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .modal-content button:active { 
+            transform: scale(0.97); 
+        }
+        .modal-content button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Area layar yang bisa diklik untuk timer -->
+    <div class="timer-area" id="timer-area"></div>
+
+    <!-- Tombol Pengaturan -->
+    <div class="settings-btn" id="settings-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </div>
+
+    <!-- Modal Pengaturan -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content" id="modal-content">
+            <h2>Pengaturan Waktu</h2>
+            <label>Lama Pomodoro (menit): 
+                <input type="number" id="work-input" value="25" min="1" max="120">
+            </label>
+            <label>Lama Istirahat (menit): 
+                <input type="number" id="rest-input" value="5" min="1" max="60">
+            </label>
+            <button id="save-btn">Simpan & Terapkan</button>
+        </div>
+    </div>
+
+    <!-- Background Layer (Dark) -->
+    <div class="layer dark-layer">
+        <div class="layer-content">
+            <div id="message-dark" class="message">
+                <div id="main-dark" class="main-text"></div>
+                <div id="sub-dark" class="sub-text"></div>
+            </div>
+            <div id="timer-dark" class="timer">25:00</div>
+        </div>
+    </div>
+
+    <!-- Foreground Progress Layer (Yellow) -->
+    <div class="layer yellow-layer" id="progress-layer">
+        <div class="layer-content">
+            <div id="message-yellow" class="message">
+                <div id="main-yellow" class="main-text"></div>
+                <div id="sub-yellow" class="sub-text"></div>
+            </div>
+            <div id="timer-yellow" class="timer">25:00</div>
+        </div>
+    </div>
+
+    <script>
+        let WORK_TIME = 25 * 60; // 25 menit default
+        let REST_TIME = 5 * 60;  // 5 menit default
+        
+        let timeLeft = WORK_TIME;
+        let currentTotalTime = WORK_TIME;
+        let timerInterval = null;
+        let isRunning = false;
+        let isResting = false;
+
+        const timerArea = document.getElementById('timer-area');
+        const timerDark = document.getElementById('timer-dark');
+        const timerYellow = document.getElementById('timer-yellow');
+        const progressLayer = document.getElementById('progress-layer');
+
+        const msgDark = document.getElementById('message-dark');
+        const msgYellow = document.getElementById('message-yellow');
+
+        const mainDark = document.getElementById('main-dark');
+        const mainYellow = document.getElementById('main-yellow');
+        const subDark = document.getElementById('sub-dark');
+        const subYellow = document.getElementById('sub-yellow');
+
+        const settingsBtn = document.getElementById('settings-btn');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const workInput = document.getElementById('work-input');
+        const restInput = document.getElementById('rest-input');
+        const saveBtn = document.getElementById('save-btn');
+
+        function setMessages(main, sub, visible) {
+            mainDark.textContent = main;
+            mainYellow.textContent = main;
+            subDark.textContent = sub;
+            subYellow.textContent = sub;
+            
+            if (visible) {
+                msgDark.classList.add('visible');
+                msgYellow.classList.add('visible');
+            } else {
+                msgDark.classList.remove('visible');
+                msgYellow.classList.remove('visible');
+            }
+        }
+
+        function updateDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            timerDark.textContent = timeString;
+            timerYellow.textContent = timeString;
+            
+            if (isResting) {
+                progressLayer.style.transition = 'none';
+                progressLayer.style.width = '0%';
+            } else {
+                if (timeLeft === currentTotalTime) {
+                    progressLayer.style.transition = 'none';
+                    progressLayer.style.width = '0%';
+                } else {
+                    progressLayer.style.transition = 'width 1s linear';
+                    const progress = ((currentTotalTime - timeLeft) / currentTotalTime) * 100;
+                    progressLayer.style.width = `${progress}%`;
+                }
+            }
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            settingsBtn.classList.add('hidden'); // Sembunyikan ikon saat berjalan
+            
+            if (isResting) {
+                setMessages('Istirahat', '', true);
+            } else {
+                setMessages('', '', false);
+            }
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    // Waktu habis, saatnya berpindah ke mode selanjutnya secara otomatis
+                    if (!isResting) {
+                        // Selesai kerja -> Mulai istirahat
+                        isResting = true;
+                        currentTotalTime = REST_TIME;
+                        timeLeft = REST_TIME;
+                        setMessages('Istirahat', '', true);
+                        
+                        progressLayer.style.transition = 'none';
+                        progressLayer.style.width = '0%';
+                        void progressLayer.offsetWidth; // force reflow
+                    } else {
+                        // Selesai istirahat -> Mulai kerja
+                        isResting = false;
+                        currentTotalTime = WORK_TIME;
+                        timeLeft = WORK_TIME;
+                        setMessages('', '', false); // Bersihkan pesan untuk masuk mode fokus
+                        
+                        progressLayer.style.transition = 'none';
+                        progressLayer.style.width = '0%';
+                        void progressLayer.offsetWidth; // force reflow
+                    }
+                } else {
+                    timeLeft--;
+                }
+
+                updateDisplay();
+            }, 1000);
+        }
+
+        function resetToWork() {
+            clearInterval(timerInterval);
+            isResting = false;
+            isRunning = false;
+            currentTotalTime = WORK_TIME;
+            timeLeft = WORK_TIME;
+            settingsBtn.classList.remove('hidden');
+            setMessages('Pamadoro', 'Ketuk di mana saja untuk memulai', true);
+            updateDisplay();
+        }
+
+        // Tap di area timer
+        timerArea.addEventListener('click', () => {
+            if (!isRunning) {
+                startTimer();
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                settingsBtn.classList.remove('hidden'); 
+                setMessages(isResting ? 'Istirahat Dijeda' : 'Jeda', 'Ketuk di mana saja untuk melanjutkan', true);
+            }
+        });
+
+        // Buka pengaturan
+        settingsBtn.addEventListener('click', () => {
+            if (!isRunning) {
+                workInput.value = Math.floor(WORK_TIME / 60);
+                restInput.value = Math.floor(REST_TIME / 60);
+                modalOverlay.classList.add('open');
+            }
+        });
+
+        // Tutup saat klik luar modal
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('open');
+            }
+        });
+
+        // Simpan & terapkan
+        saveBtn.addEventListener('click', () => {
+            const newWork = parseInt(workInput.value) || 25;
+            const newRest = parseInt(restInput.value) || 5;
+            
+            WORK_TIME = Math.max(1, newWork) * 60;
+            REST_TIME = Math.max(1, newRest) * 60;
+            
+            resetToWork();
+            modalOverlay.classList.remove('open');
+        });
+
+        // Inisialisasi status awal
+        setMessages('Pamadoro', 'Ketuk di mana saja untuk memulai', true);
+        updateDisplay();
+    </script>
+</body>
+</html>
